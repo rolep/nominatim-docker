@@ -19,6 +19,9 @@ RUN apt-get -y update -qq && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* /var/tmp/*
 
+# Osmium install to run continuous updates
+RUN pip3 install osmium
+
 WORKDIR /app
 
 # Configure postgres
@@ -30,9 +33,6 @@ ENV NOMINATIM_VERSION v3.4.1
 RUN git clone --recursive https://github.com/openstreetmap/Nominatim ./src
 RUN cd ./src && git checkout tags/$NOMINATIM_VERSION && git submodule update --recursive --init && \
     mkdir build && cd build && cmake .. && make
-
-# Osmium install to run continuous updates
-RUN pip3 install osmium
 
 # Apache configure
 COPY local.php /app/src/build/settings/local.php
