@@ -58,5 +58,6 @@ COPY startapache.sh /app/startapache.sh
 COPY startpostgres.sh /app/startpostgres.sh
 COPY init.sh /app/init.sh
 COPY loadmapfile.sh /app/loadmapfile.sh
+COPY monaco-latest.osm.pbf /app/
 
 
