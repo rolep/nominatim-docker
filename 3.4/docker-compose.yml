@@ -32,6 +32,7 @@ services:
       - NOMINATIM_IMPORT_STYLE=admin
       - NOMINATIM_REVERSE_ONLY=True
       - NOMINATIM_DB_REMOTE=True
+      - NOMINATIM_BASE_URL=my.nominatim.com
     volumes:
       - ./my_settings.php:/app/my_settings.php:ro
     networks: 
