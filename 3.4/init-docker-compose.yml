@@ -11,6 +11,7 @@ services:
       - NOMINATIM_SETTINGS=/app/my_settings.php
       - NOMINATIM_IMPORT_STYLE=admin
       - NOMINATIM_REVERSE_ONLY=True
+      - PGDATA=/data/postgresdata
     volumes:
       - ./postgresql.conf.d/initial_import.conf:/etc/postgresql/11/main/conf.d/initial_import.conf:ro
       - ./postgresql.conf.d/pg_tune.conf:/etc/postgresql/11/main/conf.d/pg_tune.conf:ro

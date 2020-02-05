@@ -11,6 +11,7 @@ services:
       - NOMINATIM_SETTINGS=/app/my_settings.php
       - NOMINATIM_IMPORT_STYLE=admin
       - NOMINATIM_REVERSE_ONLY=True
+      - PGDATA:/var/lib/postgresql/11/main
     networks: 
       - gateway
       - internal
