@@ -5,7 +5,7 @@ services:
     container_name: nominatim
     image: nominatim
     build: .
-    restart: never
+    restart: "no"
     command: ["sh", "/app/init.sh", "/app/monaco-latest.osm.pbf", "postgresdata", "4"]
     environment:
       - NOMINATIM_SETTINGS=/app/my_settings.php
