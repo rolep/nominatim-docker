@@ -1,0 +1,92 @@
+---
+version: '3.4'
+services:
+  nominatim:
+    container_name: nominatim
+    image: nominatim
+    build: .
+    restart: unless-stopped
+    command: ["sh", "/app/startpostgres.sh"]
+    environment:
+      - NOMINATIM_SETTINGS=/app/my_settings.php
+      - NOMINATIM_IMPORT_STYLE=admin
+      - NOMINATIM_REVERSE_ONLY=True
+    networks: 
+      - gateway
+      - internal
+    volumes:
+      # - ./maps:/data/maps
+      # - ./postgresql.conf.d/initial_import.conf:/etc/postgresql/11/main/conf.d/initial_import.conf:ro
+      - ./postgresql.conf.d/pg_tune.conf:/etc/postgresql/11/main/conf.d/pg_tune.conf:ro
+      - nominatim-db:/var/lib/postgresql/11/main
+      - ./my_settings.php:/app/my_settings.php:ro
+
+  nominatim-api:
+    container_name: nominatim-api
+    image: nominatim
+    build: .
+    restart: unless-stopped
+    command: ["sh", "/app/startapache.sh"]
+    environment:
+      - NOMINATIM_SETTINGS=/app/my_settings.php
+      - NOMINATIM_IMPORT_STYLE=admin
+      - NOMINATIM_REVERSE_ONLY=True
+      - NOMINATIM_DB_REMOTE=True
+    volumes:
+      - ./my_settings.php:/app/my_settings.php:ro
+    networks: 
+      - gateway
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nominatim-api.rule=Host(`my.nominatim.com`)"
+      - "traefik.http.services.nominatim-api.loadbalancer.server.port=8080"
+      - "traefik.http.routers.nominatim-api.tls=true"
+      - "traefik.http.routers.nominatim-api.tls.certresolver=le"
+      - "traefik.http.routers.nominatim-api.entrypoints=web-secure"
+      - "traefik.http.routers.nominatim-api.middlewares=secured"
+      - "traefik.http.middlewares.secured.chain.middlewares=https-only,known-ips,auth-users,nom-ratelimit"
+      - "traefik.http.middlewares.auth-users.basicauth.users=user:$$apr1$$InU9fLmG$$fe9YI9iVsCXg.wru6RkeQ1"
+      - "traefik.http.middlewares.https-only.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.known-ips.ipwhitelist.sourceRange=192.168.1.7,127.0.0.1/32"
+      - "traefik.http.middlewares.nom-ratelimit.ratelimit.burst=100"
+
+# Declaring the user list
+#
+# Note: all dollar signs in the hash need to be doubled for escaping.
+# To create user:password pair, it's possible to use this command:
+# echo $(htpasswd -nb user password) | sed -e s/\\$/\\$\\$/g
+
+  traefik:
+    image: traefik:v2.1
+    restart: unless-stopped
+    command: >
+      --api.insecure=true
+      --api.dashboard=true
+      --providers.docker=true
+      --providers.docker.exposedbydefault=false
+      --log.level="INFO"
+      --accesslog=true
+      --entryPoints.web.address=:80
+      --entryPoints.web-secure.address=:443
+      --certificatesResolvers.le.acme.email=your-email@your-domain.org
+      --certificatesResolvers.le.acme.storage=/acme/acme.json
+      --certificatesResolvers.le.acme.httpChallenge.entryPoint=web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "127.0.0.1:8080:8080"
+    networks: 
+      - gateway
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik-acme:/acme
+
+volumes:
+  nominatim-db:
+  traefik-acme:
+
+networks:
+  gateway:
+  internal:
+...

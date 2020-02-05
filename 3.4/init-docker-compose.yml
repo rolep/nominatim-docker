@@ -1,0 +1,22 @@
+---
+version: '3.4'
+services:
+  nominatim:
+    container_name: nominatim
+    image: nominatim
+    build: .
+    restart: never
+    command: ["sh", "/app/init.sh", "/app/monaco-latest.osm.pbf", "postgresdata", "4"]
+    environment:
+      - NOMINATIM_SETTINGS=/app/my_settings.php
+      - NOMINATIM_IMPORT_STYLE=admin
+      - NOMINATIM_REVERSE_ONLY=True
+    volumes:
+      - ./postgresql.conf.d/initial_import.conf:/etc/postgresql/11/main/conf.d/initial_import.conf:ro
+      - ./postgresql.conf.d/pg_tune.conf:/etc/postgresql/11/main/conf.d/pg_tune.conf:ro
+      - nominatim-db:/data/postgresdata
+      - ./my_settings.php:/app/my_settings.php:ro
+
+volumes:
+  nominatim-db:
+...
