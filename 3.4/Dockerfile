@@ -31,8 +31,8 @@ RUN mkdir -p /etc/postgresql/11/main/conf.d && \
     # Allow reading additional db configs \
     echo "include_dir='conf.d'" >> /etc/postgresql/11/main/postgresql.conf && \
     # psql and some other tools expect 0600 permissions \
-    chmod 600 /etc/postgresql/11/main/postgresql.conf && \
-    chmod 600 /etc/postgresql/11/main/pg_hba.conf && \
+    chmod 644 /etc/postgresql/11/main/postgresql.conf && \
+    chmod 644 /etc/postgresql/11/main/pg_hba.conf && \
     # And owner postgres also
     chown -R postgres:postgres /etc/postgresql
 
