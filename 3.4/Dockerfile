@@ -57,5 +57,6 @@ COPY start.sh /app/start.sh
 COPY startapache.sh /app/startapache.sh
 COPY startpostgres.sh /app/startpostgres.sh
 COPY init.sh /app/init.sh
+COPY loadmapfile.sh /app/loadmapfile.sh
 
 
